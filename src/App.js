@@ -16,9 +16,9 @@ function App() {
 
     <Heading />
     <Datetime />
-    <List of locations />
+    <List of locations /> - reverse geo location using external api
 
-    <Weather /> - need a function to return the nearest location
+    <Weather /> - need a function to return the nearest location based on the selected location
     <Screenshot />
    */
 
@@ -28,19 +28,16 @@ function App() {
   const [weatherData, setWeatherData] = useState([]);
 
 
-  const fetchTrafficImages = async (selectedDate, selectedTime) => {
-    let proper_date;
-    // convert the date into a proper format
-    // toISOString();
-
+  const fetchTrafficImages = async (selectedDate) => {
     try {
       const { data } = await axios.get(API_ADDRESSES['traffic_images'], {
         params: {
-          'date_time': proper_date,
+          'date_time': selectedDate.toISOString().split('.')[0],
         }
       });
 
-      // update the state
+      console.log(data['items'][0]['cameras'].length);
+      setImageData(data['items'][0]['cameras']);
     }
     catch (error) {
       if (error.response) {

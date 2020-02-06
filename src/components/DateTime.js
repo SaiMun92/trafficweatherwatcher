@@ -1,53 +1,39 @@
 import React, { useState } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
+import { setHours, setMinutes, subHours, subDays } from "date-fns";
 
 
 export default function DateTime(props) {
 
     const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedTime, setSelectedTime] = useState(null);
 
     const liftDataUp = () => {
         console.log(selectedDate);
-        console.log(selectedTime);
-        props.update(selectedDate, selectedTime);
+        props.update(selectedDate);
     };
 
 
     return(
       <Row className="justify-content-md-center">
 
-          {/*Can i combine this?*/}
           <Col>
               Date:
               <DatePicker
-                showPopperArrow={false}
-                dateFormat="dd/MM/yyyy"
-                selected={selectedDate}
-                onChange={date => setSelectedDate(date)}
-                placeholderText="Select a date"
-                maxDate={new Date()}
-              />
-          </Col>
-          <Col>
-              Time:
-              <DatePicker
-                  selected={selectedTime}
-                  onChange={time => setSelectedTime(time)}
+                  selected={selectedDate}
+                  onChange={date => setSelectedDate(date)}
                   showTimeSelect
-                  showTimeSelectOnly
+                  showYearDropdown
+                  timeFormat="HH:mm"
                   timeIntervals={15}
-                  timeCaption="Time"
-                  dateFormat="h:mm aa"
-                  placeholderText="Select a time"
+                  timeCaption="time"
+                  dateFormat="MMMM d, yyyy h:mm aa"
+                  placeholderText="Select a date and time"
+                  maxDate={subDays(new Date(), 1)}
+                  minTime={setHours(setMinutes(new Date(), 0), 0)}
+                  maxTime={setHours(setMinutes(new Date(), 45), 23)}
               />
-          </Col>
-          <Col>
-              <Button
-                  variant="primary"
-                  onClick={liftDataUp}
-              >Go</Button>
+              <Button variant="primary" onClick={liftDataUp}>Go</Button>
           </Col>
       </Row>
     );
