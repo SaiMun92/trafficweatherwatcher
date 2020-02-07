@@ -1,19 +1,55 @@
-import React from 'react';
-import { API_ADDRESSES } from "../constants/api_addresses";
-import axios from 'axios';
+import React, {useEffect, useState} from 'react';
+import { DropdownButton, Dropdown, SplitButton } from "react-bootstrap";
+import CustomMenu from "./custom/CustomMenu";
+import '../styles/LocationList.css';
 
-export default function LocationList() {
-    /*
-    Create a function that takes in the list of latitude and longitute
-     */
+export default function LocationList(props) {
 
-    const batchRevGeocode = () => {
-        // use axios.all
+    const updateIndex = (index) => {
+        props.update(index);
+    };
+    const updateRoad = e => {
+      e.preventDefault();
+
+      props.update_road(e.target.value);
     };
 
-    return (
-      <div>
+    let dict = {};
 
-      </div>
+    return (
+        <Dropdown>
+            <Dropdown.Toggle variant="success" id="dropdown-basic" style={{ maxHeight: "50px"}}>
+                List of locations
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu as={CustomMenu}>
+                {props.data.map((dataset, index) => {
+                    let road = dataset.data["GeocodeInfo"][0]['ROAD'];
+
+                    // Check if the Road exists
+                    if (road in dict) {
+                        dict[road] = dict[road] + 1;
+                    }
+                    else {
+                        dict[road] = 1;
+                    }
+
+                    if (dict[road] > 1) {
+                        road = road + "_" + dict[road];
+                    }
+                    return (
+                      <Dropdown.Item
+                          as="button"
+                          value={road}
+                          eventKey={index}
+                          key={index}
+                          onSelect={index => updateIndex(index)}
+                          onClick={e => updateRoad(e)}
+                      >{road}
+                      </Dropdown.Item>
+                    );
+                })}
+            </Dropdown.Menu>
+        </Dropdown>
     );
 }
