@@ -1,47 +1,58 @@
-import React, { useState, Component } from 'react';
+import  React, { Component } from 'react';
 import { Container, Row } from 'react-bootstrap';
-import DateTime from "./components/DateTime";
-import LocationList from "./components/LocationList";
-import RegionSelector from "./components/RegionSelector";
+import './styles/App.css';
+
 import axios from 'axios';
 import { API_ADDRESSES } from "./constants/api_addresses";
 import { NORTH_REGION, SOUTH_REGION, EAST_REGION, WEST_REGION } from "./constants/SingaporeRegion";
 import { NORTH, SOUTH, EAST, WEST } from "./constants/directions";
-import classifyPoint from 'robust-point-in-polygon';
-import './styles/App.css';
-import {TOKEN} from "./constants/token";
+import { TOKEN } from "./constants/token";
 
+import DateTime from "./components/DateTime";
+import LocationList from "./components/LocationList";
+import RegionSelector from "./components/RegionSelector";
+import WeatherInfo from "./components/WeatherInfo";
+import classifyPoint from 'robust-point-in-polygon';
+import { FindNearestGeoPoint } from './components/utils/FindNearestGeoPoint';
 
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      imageData : [],
-      North_Region: [],
-      South_Region: [],
-      East_Region: [],
-      West_Region: [],
+      image_data : [],
+      weather_data: [],
+      Regions: {},
       Current_Region: NORTH,
-      forward_location_data : [],
-      current_image: null,
+      location_data : [],
       current_road: '',
+      current_index: null,
+      current_traffic_data: [],
     };
   }
 
-  fetchTrafficImages = async (selectedDate) => {
+  fetch_traffic_and_weather_data = async (selectedDate) => {
     let tzoffset = (new Date()).getTimezoneOffset() * 60000;
     let localISOTime = (new Date(selectedDate - tzoffset)).toISOString().split('.')[0];
 
     try {
-      const { data } = await axios.get(API_ADDRESSES['traffic_images'], {
+      const traffic_images_data = await axios.get(API_ADDRESSES['traffic_images'], {
         params: {
           'date_time': localISOTime,
         }
       });
+
+      const weather_forecast_data = await axios.get(API_ADDRESSES['weather_forecast'], {
+        params: {
+          'date_time': localISOTime,
+        }
+      });
+
       this.setState({
-        imageData: data['items'][0]['cameras'],
+        image_data: traffic_images_data.data['items'][0]['cameras'],
+        weather_data: weather_forecast_data.data
       }, () => this.classifying_points_to_regions());
+
     }
     catch (error) {
       if (error.response) {
@@ -57,36 +68,29 @@ class App extends Component {
     let east = [];
     let west = [];
 
-    let data_val = this.state.imageData;
+    let data_val = this.state.image_data;
     for (let i=0; i < data_val.length; i++) {
       let point = [data_val[i].location.latitude, data_val[i].location.longitude];
 
-      if (classifyPoint(NORTH_REGION, point) !== 1) {
-        north.push(data_val[i]);
-        continue;
-      }
-      if (classifyPoint(SOUTH_REGION, point) !== 1) {
-        south.push(data_val[i]);
-        continue;
-      }
-      if (classifyPoint(EAST_REGION, point) !== 1) {
-        east.push(data_val[i]);
-        continue;
-      }
-      if (classifyPoint(WEST_REGION, point) !== 1) {
-        west.push(data_val[i]);
-      }
+      if (classifyPoint(NORTH_REGION, point) !== 1) { north.push(data_val[i]); continue;}
+      if (classifyPoint(SOUTH_REGION, point) !== 1) {south.push(data_val[i]);continue;}
+      if (classifyPoint(EAST_REGION, point) !== 1) {east.push(data_val[i]);continue;}
+      if (classifyPoint(WEST_REGION, point) !== 1) {west.push(data_val[i]);}
     }
+
     this.setState({
-      North_Region: north,
-      South_Region: south,
-      East_Region: east,
-      West_Region: west,
-    }, ()=> this.modify_image_data(NORTH));
+      Regions: {
+        NORTH: north,
+        SOUTH: south,
+        EAST: east,
+        WEST: west
+      },
+
+    }, ()=> this.rev_geocode(NORTH));
   };
 
   create_batch_api = (data) => {
-    return data.map((data_val, index) => {
+    return data.map((data_val) => {
       return axios.get(API_ADDRESSES['reverse_geocode'], {
         params: {
           location: `${data_val.location.latitude},${data_val.location.longitude}`,
@@ -97,31 +101,22 @@ class App extends Component {
     });
   };
 
-  modify_image_data = async (region) => {
-    let list_of_promises;
-    if (region === NORTH) { list_of_promises = this.create_batch_api(this.state.North_Region); }
-    else if (region === SOUTH) { list_of_promises = this.create_batch_api(this.state.South_Region); }
-    else if (region === WEST) { list_of_promises = this.create_batch_api(this.state.West_Region); }
-    else if (region === EAST) { list_of_promises = this.create_batch_api(this.state.East_Region); }
-
+  rev_geocode = async (current_region) => {
+    const list_of_promises = this.create_batch_api(this.state.Regions[current_region]);
     const data  = await axios.all(list_of_promises);
     this.setState({
-      forward_location_data: data,
-      Current_Region: region,
+      location_data: data,
+      Current_Region: current_region,
     });
   };
 
-  set_current_image = (index) => {
-    let current_image;
-
-    console.log("index: ", index);
-    if (this.state.Current_Region === NORTH) { current_image = this.state.North_Region[index]['image'];}
-    else if (this.state.Current_Region === SOUTH) { current_image = this.state.South_Region[index]['image'];}
-    else if (this.state.Current_Region === EAST) { current_image = this.state.East_Region[index]['image'];}
-    else if (this.state.Current_Region === WEST) { current_image = this.state.West_Region[index]['image'];}
-
+  set_current_data = (index) => {
+    let current_traffic_data = this.state.Regions[this.state.Current_Region][index];
     this.setState({
-      current_image
+      current_traffic_data,
+      current_index: index,
+    }, () => {
+      this.set_current_weather_condition_and_approx_location();
     });
   };
 
@@ -131,20 +126,35 @@ class App extends Component {
     });
   };
 
+  // Return the closest location and the weather condition
+  set_current_weather_condition_and_approx_location = () => {
+    let latitude = this.state.current_traffic_data['location']['latitude'];
+    let longitude = this.state.current_traffic_data['location']['longitude'];
+
+    // TODO: display the lat long in the front end
+    console.log(latitude, longitude);
+    let index = FindNearestGeoPoint({latitude, longitude}, this.state.weather_data);
+    console.log(index);
+    console.log(this.state.weather_data['area_metadata'][index]);
+  };
+
+
   render() {
     return (
         <div className="App">
           <Container>
-            <DateTime update={this.fetchTrafficImages}/>
+            <DateTime update={this.fetch_traffic_and_weather_data}/>
             <Row className="justify-content-md-center">
-              <RegionSelector update={this.modify_image_data}/>
-              <LocationList data={this.state.forward_location_data}
-                            update={this.set_current_image}
+              <RegionSelector update={this.rev_geocode}/>
+              <LocationList data={this.state.location_data}
+                            update={this.set_current_data}
                             update_road={this.set_current_road}/>
             </Row>
             <h5>{this.state.current_road}</h5>
             <Row>
-              <img src={this.state.current_image} />
+              {/*TODO: Adjust Image Size*/}
+              <img src={this.state.current_traffic_data['image']}/>
+              <WeatherInfo />
             </Row>
           </Container>
         </div>

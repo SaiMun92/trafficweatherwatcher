@@ -5,7 +5,7 @@ import { setHours, setMinutes, subHours, subDays } from "date-fns";
 
 
 export default function DateTime(props) {
-
+    // TODO: write the proptypes for all react components
     const [selectedDate, setSelectedDate] = useState(null);
 
     const liftDataUp = () => {
