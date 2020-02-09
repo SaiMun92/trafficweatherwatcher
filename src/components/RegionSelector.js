@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import {Dropdown} from "react-bootstrap";
 import { NORTH, EAST, WEST, SOUTH} from "../constants/directions";
+import PropTypes from 'prop-types';
 
 
 export default function RegionSelector(props) {
 
     const [selectedRegion, setSelectedRegion] = useState(NORTH);
+    const {rev_geocode} = props;
 
     const updater = (val) => {
-      props.update(val);
-      setSelectedRegion(val);
+        rev_geocode(val);
+        setSelectedRegion(val);
     };
 
     return (
@@ -27,3 +29,7 @@ export default function RegionSelector(props) {
         </Dropdown>
     );
 }
+
+RegionSelector.propTypes = {
+    rev_geocode: PropTypes.func.isRequired,
+};

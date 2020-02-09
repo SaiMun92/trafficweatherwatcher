@@ -1,11 +1,22 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 
 function WeatherInfo(props) {
 
+    const { weather_data }  = props;
+
     return (
-      <div></div>
+      <div>
+          <h6>2 Hr Weather Forecast</h6>
+          <h6>{`Area: ${weather_data['area']}`}</h6>
+          <h6>{`Weather Conditions: ${weather_data['forecast']}`}</h6>
+      </div>
     );
 }
+
+WeatherInfo.propTypes = {
+    weather_data: PropTypes.array.isRequired,
+};
 
 export default WeatherInfo;

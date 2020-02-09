@@ -1,19 +1,23 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import { DropdownButton, Dropdown, SplitButton } from "react-bootstrap";
 import CustomMenu from "./custom/CustomMenu";
+import PropTypes from 'prop-types';
 import '../styles/LocationList.css';
 
 export default function LocationList(props) {
 
+    let dict = {};
+    const { location_data } = props;
+    const {set_current_traffic_data} = props;
+    const {set_current_road} = props;
+
     const updateIndex = (index) => {
-        props.update(index);
+        set_current_traffic_data(index);
     };
     const updateRoad = e => {
       e.preventDefault();
-      props.update_road(e.target.value);
+      set_current_road(e.target.value);
     };
-
-    let dict = {};
 
     return (
         <div className="dropdown-roads">
@@ -23,19 +27,14 @@ export default function LocationList(props) {
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu as={CustomMenu}>
-                    {props.data.map((dataset, index) => {
-                        // TODO: Error handler
-                        let road = dataset.data["GeocodeInfo"][0]['ROAD'];
-                        // Check if the Road exists
-                        if (road in dict) {
-                            dict[road] = dict[road] + 1;
-                        }
-                        else {
-                            dict[road] = 1;
-                        }
-
-                        if (dict[road] > 1) {
-                            road = road + "_" + dict[road];
+                    {location_data.map((dataset, index) => {
+                        let road = 'Unable to pinpoint location';
+                        if (dataset.data["GeocodeInfo"].length > 0) {
+                            road = dataset.data["GeocodeInfo"][0]['ROAD'];
+                            // Check if the Road exists, if exists append number
+                            if (road in dict) { dict[road] = dict[road] + 1;}
+                            else { dict[road] = 1; }
+                            if (dict[road] > 1) { road = road + "_" + dict[road];}
                         }
                         return (
                           <Dropdown.Item
@@ -54,3 +53,9 @@ export default function LocationList(props) {
         </div>
     );
 }
+
+LocationList.propTypes = {
+    location_data: PropTypes.array.isRequired,
+    set_current_traffic_data: PropTypes.func.isRequired,
+    set_current_road: PropTypes.func.isRequired,
+};

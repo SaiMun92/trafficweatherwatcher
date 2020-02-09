@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import { setHours, setMinutes, subHours, subDays } from "date-fns";
+import PropTypes from 'prop-types';
 
 
 export default function DateTime(props) {
-    // TODO: write the proptypes for all react components
     const [selectedDate, setSelectedDate] = useState(null);
+    const { fetch_traffic_and_weather_data } = props;
 
     const liftDataUp = () => {
         console.log(selectedDate);
-        props.update(selectedDate);
+        fetch_traffic_and_weather_data(selectedDate);
     };
 
 
@@ -38,3 +39,7 @@ export default function DateTime(props) {
       </Row>
     );
 }
+
+DateTime.propTypes = {
+    fetch_traffic_and_weather_data: PropTypes.func.isRequired,
+};

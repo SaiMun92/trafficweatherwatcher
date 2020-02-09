@@ -3,10 +3,10 @@ import { Container, Row } from 'react-bootstrap';
 import './styles/App.css';
 
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { API_ADDRESSES } from "./constants/api_addresses";
 import { NORTH_REGION, SOUTH_REGION, EAST_REGION, WEST_REGION } from "./constants/SingaporeRegion";
 import { NORTH, SOUTH, EAST, WEST } from "./constants/directions";
-import { TOKEN } from "./constants/token";
 
 import DateTime from "./components/DateTime";
 import LocationList from "./components/LocationList";
@@ -14,6 +14,7 @@ import RegionSelector from "./components/RegionSelector";
 import WeatherInfo from "./components/WeatherInfo";
 import classifyPoint from 'robust-point-in-polygon';
 import { FindNearestGeoPoint } from './components/utils/FindNearestGeoPoint';
+import { TokenValidator } from "./components/utils/TokenValidator";
 
 
 class App extends Component {
@@ -28,6 +29,7 @@ class App extends Component {
       current_road: '',
       current_index: null,
       current_traffic_data: [],
+      current_weather_data: [],
     };
   }
 
@@ -95,7 +97,7 @@ class App extends Component {
         params: {
           location: `${data_val.location.latitude},${data_val.location.longitude}`,
           buffer: 50,
-          token: TOKEN
+          token: Cookies.get('token'),
         }
       })
     });
@@ -110,7 +112,7 @@ class App extends Component {
     });
   };
 
-  set_current_data = (index) => {
+  set_current_traffic_data = (index) => {
     let current_traffic_data = this.state.Regions[this.state.Current_Region][index];
     this.setState({
       current_traffic_data,
@@ -131,30 +133,39 @@ class App extends Component {
     let latitude = this.state.current_traffic_data['location']['latitude'];
     let longitude = this.state.current_traffic_data['location']['longitude'];
 
-    // TODO: display the lat long in the front end
-    console.log(latitude, longitude);
     let index = FindNearestGeoPoint({latitude, longitude}, this.state.weather_data);
-    console.log(index);
-    console.log(this.state.weather_data['area_metadata'][index]);
+    this.setState({
+      current_weather_data: this.state.weather_data['items'][0]['forecasts'][index],
+    });
   };
 
+  componentDidMount() {
+    const token_promise = TokenValidator();
+    token_promise.then(data => {
+      Cookies.set('token', data['access_token']);
+    }).catch(err => {
+      console.log(err);
+    });
+
+  }
 
   render() {
     return (
         <div className="App">
           <Container>
-            <DateTime update={this.fetch_traffic_and_weather_data}/>
+            <DateTime fetch_traffic_and_weather_data={this.fetch_traffic_and_weather_data}/>
             <Row className="justify-content-md-center">
-              <RegionSelector update={this.rev_geocode}/>
-              <LocationList data={this.state.location_data}
-                            update={this.set_current_data}
-                            update_road={this.set_current_road}/>
+              <RegionSelector rev_geocode={this.rev_geocode}/>
+              <LocationList location_data={this.state.location_data}
+                            set_current_traffic_data={this.set_current_traffic_data}
+                            set_current_road={this.set_current_road}/>
             </Row>
             <h5>{this.state.current_road}</h5>
             <Row>
-              {/*TODO: Adjust Image Size*/}
-              <img src={this.state.current_traffic_data['image']}/>
-              <WeatherInfo />
+              <div id="img-container">
+                <img src={this.state.current_traffic_data['image']}/>
+              </div>
+              <WeatherInfo weather_data={this.state.current_weather_data}/>
             </Row>
           </Container>
         </div>
