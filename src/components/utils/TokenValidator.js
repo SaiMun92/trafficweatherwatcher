@@ -21,6 +21,4 @@ export async function TokenValidator() {
             console.log(error.response);
         }
     }
-
-
 }

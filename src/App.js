@@ -6,8 +6,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { API_ADDRESSES } from "./constants/api_addresses";
 import { NORTH_REGION, SOUTH_REGION, EAST_REGION, WEST_REGION } from "./constants/SingaporeRegion";
-import { NORTH, SOUTH, EAST, WEST } from "./constants/directions";
-
+import { NORTH } from "./constants/directions";
+import _ from 'lodash';
 import DateTime from "./components/DateTime";
 import LocationList from "./components/LocationList";
 import RegionSelector from "./components/RegionSelector";
@@ -15,6 +15,7 @@ import WeatherInfo from "./components/WeatherInfo";
 import classifyPoint from 'robust-point-in-polygon';
 import { FindNearestGeoPoint } from './components/utils/FindNearestGeoPoint';
 import { TokenValidator } from "./components/utils/TokenValidator";
+import { create_batch_api } from "./components/utils/CreateBatchAPI";
 
 
 class App extends Component {
@@ -24,7 +25,7 @@ class App extends Component {
       image_data : [],
       weather_data: [],
       Regions: {},
-      Current_Region: NORTH,
+      current_region: NORTH,
       location_data : [],
       current_road: '',
       current_index: null,
@@ -91,29 +92,17 @@ class App extends Component {
     }, ()=> this.rev_geocode(NORTH));
   };
 
-  create_batch_api = (data) => {
-    return data.map((data_val) => {
-      return axios.get(API_ADDRESSES['reverse_geocode'], {
-        params: {
-          location: `${data_val.location.latitude},${data_val.location.longitude}`,
-          buffer: 50,
-          token: Cookies.get('token'),
-        }
-      })
-    });
-  };
-
   rev_geocode = async (current_region) => {
-    const list_of_promises = this.create_batch_api(this.state.Regions[current_region]);
+    const list_of_promises = create_batch_api(this.state.Regions[current_region]);
     const data  = await axios.all(list_of_promises);
     this.setState({
       location_data: data,
-      Current_Region: current_region,
+      current_region,
     });
   };
 
   set_current_traffic_data = (index) => {
-    let current_traffic_data = this.state.Regions[this.state.Current_Region][index];
+    let current_traffic_data = this.state.Regions[this.state.current_region][index];
     this.setState({
       current_traffic_data,
       current_index: index,
@@ -161,12 +150,14 @@ class App extends Component {
                             set_current_road={this.set_current_road}/>
             </Row>
             <h5>{this.state.current_road}</h5>
-            <Row>
-              <div id="img-container">
-                <img src={this.state.current_traffic_data['image']}/>
-              </div>
-              <WeatherInfo weather_data={this.state.current_weather_data}/>
-            </Row>
+            {!_.isEmpty(this.state.current_traffic_data) && !_.isEmpty(this.state.current_weather_data) ?
+                (<Row>
+                  <div id="img-container">
+                    <img src={this.state.current_traffic_data['image']} alt=""/>
+                  </div>
+                  <WeatherInfo weather_data={this.state.current_weather_data}/>
+                </Row>) : null
+            }
           </Container>
         </div>
     )

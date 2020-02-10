@@ -1,5 +1,5 @@
 import React from 'react';
-import { DropdownButton, Dropdown, SplitButton } from "react-bootstrap";
+import { Dropdown } from "react-bootstrap";
 import CustomMenu from "./custom/CustomMenu";
 import PropTypes from 'prop-types';
 import '../styles/LocationList.css';

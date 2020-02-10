@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
-import { setHours, setMinutes, subHours, subDays } from "date-fns";
+import { setHours, setMinutes, subDays } from "date-fns";
 import PropTypes from 'prop-types';
 
 
