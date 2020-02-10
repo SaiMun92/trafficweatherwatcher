@@ -8,8 +8,6 @@ import { TokenValidator } from "../components/utils/TokenValidator";
 
 jest.mock('axios');
 
-
-
 describe('App component', () => {
   it('fetches the token for rev geomatching', async () => {
     await expect(TokenValidator).resolves;

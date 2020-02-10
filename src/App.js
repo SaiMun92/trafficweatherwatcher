@@ -6,7 +6,7 @@ import './styles/App.css';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { API_ADDRESSES } from "./constants/api_addresses";
-import { NORTH_REGION, SOUTH_REGION, EAST_REGION, WEST_REGION } from "./constants/SingaporeRegion";
+import { NORTH_REGION, SOUTH_REGION, CENTRAL_REGION, EAST_REGION, WEST_REGION } from "./constants/SingaporeRegion";
 import { NORTH } from "./constants/directions";
 
 import _ from 'lodash';
@@ -77,6 +77,7 @@ class App extends Component {
     let south = [];
     let east = [];
     let west = [];
+    let central = [];
 
     let data_val = this.state.image_data;
     for (let i=0; i < data_val.length; i++) {
@@ -84,6 +85,7 @@ class App extends Component {
 
       if (classifyPoint(NORTH_REGION, point) !== 1) { north.push(data_val[i]); continue;}
       if (classifyPoint(SOUTH_REGION, point) !== 1) {south.push(data_val[i]);continue;}
+      if (classifyPoint(CENTRAL_REGION, point) !== 1) { central.push(data_val[i]);continue;}
       if (classifyPoint(EAST_REGION, point) !== 1) {east.push(data_val[i]);continue;}
       if (classifyPoint(WEST_REGION, point) !== 1) {west.push(data_val[i]);}
     }
@@ -92,6 +94,7 @@ class App extends Component {
       Regions: {
         NORTH: north,
         SOUTH: south,
+        CENTRAL: central,
         EAST: east,
         WEST: west
       },

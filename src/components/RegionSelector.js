@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {Dropdown} from "react-bootstrap";
-import { NORTH, EAST, WEST, SOUTH} from "../constants/directions";
+import { NORTH, EAST, WEST, SOUTH, CENTRAL} from "../constants/directions";
 import PropTypes from 'prop-types';
 import '../styles/RegionSelector.css'
 
@@ -24,6 +24,7 @@ export default function RegionSelector(props) {
             <Dropdown.Menu>
                 <Dropdown.Item eventKey={NORTH} onSelect={val => updater(val)}>North</Dropdown.Item>
                 <Dropdown.Item eventKey={SOUTH} onSelect={val => updater(val)}>South</Dropdown.Item>
+                <Dropdown.Item eventKey={CENTRAL} onSelect={val => updater(val)}>Central</Dropdown.Item>
                 <Dropdown.Item eventKey={EAST} onSelect={val => updater(val)}>East</Dropdown.Item>
                 <Dropdown.Item eventKey={WEST} onSelect={val => updater(val)}>West</Dropdown.Item>
             </Dropdown.Menu>
