@@ -1,27 +1,58 @@
 .App {
   text-align: center;
+  margin-top: 50px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.go-button-div {
+  margin-left: 10px;
 }
 
+.go-button {
+  padding: 5px 30px;
+}
+
+.react-datepicker-wrapper,
+.react-datepicker__input-container,
+.react-datepicker__input-container input {
+  display: block;
+  width: 250px;
+}
+
+.controls {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.controls:after {
+  clear: both;
+}
+
+.control {
+  display: inline-block;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+}
 
 #img-container img {
   width: auto;
   height: 450px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+@media screen and (max-width: 600px) {
+  .break {
+    flex-basis: 100%;
+    height: 5px;
+  }
 
+  #img-container img {
+    width: auto;
+    height: 350px;
+  }
+}
 

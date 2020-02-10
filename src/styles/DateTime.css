@@ -1,0 +1,10 @@
+.textLabel {
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.datetime-parent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

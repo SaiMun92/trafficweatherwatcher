@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {Dropdown} from "react-bootstrap";
 import { NORTH, EAST, WEST, SOUTH} from "../constants/directions";
 import PropTypes from 'prop-types';
+import '../styles/RegionSelector.css'
 
 
 export default function RegionSelector(props) {
@@ -15,7 +16,7 @@ export default function RegionSelector(props) {
     };
 
     return (
-        <Dropdown>
+        <Dropdown className="region-dropdown">
             <Dropdown.Toggle variant="success" id="dropdown-basic" style={{ maxHeight: "50px"}}>
                 Current Region: {selectedRegion}
             </Dropdown.Toggle>

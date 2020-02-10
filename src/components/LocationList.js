@@ -7,9 +7,11 @@ import '../styles/LocationList.css';
 export default function LocationList(props) {
 
     let dict = {};
-    const { location_data } = props;
-    const {set_current_traffic_data} = props;
-    const {set_current_road} = props;
+    const { location_data,
+        set_current_traffic_data,
+        set_current_road,
+        location_list_toggle
+    } = props;
 
     const updateIndex = (index) => {
         set_current_traffic_data(index);
@@ -22,7 +24,7 @@ export default function LocationList(props) {
     return (
         <div className="dropdown-roads">
             <Dropdown>
-                <Dropdown.Toggle variant="success" id="dropdown-basic" style={{ maxHeight: "50px"}}>
+                <Dropdown.Toggle disabled={location_list_toggle} variant="success" id="dropdown-basic" style={{ maxHeight: "50px"}}>
                     List of locations
                 </Dropdown.Toggle>
 
@@ -58,4 +60,5 @@ LocationList.propTypes = {
     location_data: PropTypes.array.isRequired,
     set_current_traffic_data: PropTypes.func.isRequired,
     set_current_road: PropTypes.func.isRequired,
+    location_list_toggle: PropTypes.bool.isRequired,
 };
