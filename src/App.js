@@ -42,6 +42,10 @@ class App extends Component {
   }
 
   fetch_traffic_and_weather_data = async () => {
+    /*
+      This function is fetches traffic and weather data
+      If success, classifying_points_to_regions() will be called
+     */
     this.setState({ loading_button: true, error_message: false });
 
     let tzoffset = (new Date()).getTimezoneOffset() * 60000;
@@ -81,7 +85,7 @@ class App extends Component {
   };
 
   classifying_points_to_regions = () => {
-    // split the coordinates into north, south, east, west
+    // split the coordinates into north, south, east, west and central
     let north = [];
     let south = [];
     let east = [];
@@ -111,6 +115,9 @@ class App extends Component {
   };
 
   rev_geocode = async (current_region) => {
+    /*
+      Reverse geocode the list of lat long coordinates from traffic data
+     */
     this.setState({ loading_button: true, location_list_toggle: true });
     const list_of_promises = create_batch_api(this.state.Regions[current_region]);
     const data  = await axios.all(list_of_promises);
@@ -123,6 +130,9 @@ class App extends Component {
   };
 
   set_current_traffic_data = (index) => {
+    /*
+      A function called by <LocationList /> to set the current selected traffic data
+     */
     let current_traffic_data = this.state.Regions[this.state.current_region][index];
     console.log(current_traffic_data['location']);
     this.setState({
@@ -134,6 +144,10 @@ class App extends Component {
   };
 
   set_current_road = (current_road) => {
+    /*
+      This function is called by <LocationList /> to set the name of the road
+      to be displayed on the front end.
+     */
     this.setState({
       current_road
     });
@@ -151,10 +165,16 @@ class App extends Component {
   };
 
   set_current_date = (current_date) => {
+    /*
+      This function is called by <DateTime />
+     */
     this.setState({ current_date });
   };
 
   componentDidMount() {
+    /*
+      Gets the token for reverse geocode
+     */
     const token_promise = TokenValidator();
     token_promise.then(data => {
       Cookies.set('token', data['access_token']);
