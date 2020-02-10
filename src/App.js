@@ -32,7 +32,7 @@ class App extends Component {
       current_road: '',
       current_index: null,
       current_traffic_data: [],
-      current_weather_data: [],
+      current_weather_data: {},
       current_date: '',
       loading_button: false,
       location_list_toggle: false,
@@ -95,7 +95,7 @@ class App extends Component {
         EAST: east,
         WEST: west
       },
-    }, ()=> this.rev_geocode(NORTH));
+    }, ()=> this.rev_geocode(this.state.current_region));
   };
 
   rev_geocode = async (current_region) => {
@@ -112,6 +112,7 @@ class App extends Component {
 
   set_current_traffic_data = (index) => {
     let current_traffic_data = this.state.Regions[this.state.current_region][index];
+    console.log(current_traffic_data['location']);
     this.setState({
       current_traffic_data,
       current_index: index,

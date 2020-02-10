@@ -16,7 +16,7 @@ function WeatherInfo(props) {
 }
 
 WeatherInfo.propTypes = {
-    weather_data: PropTypes.array.isRequired,
+    weather_data: PropTypes.object.isRequired,
 };
 
 export default WeatherInfo;
