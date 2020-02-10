@@ -18,6 +18,7 @@ import classifyPoint from 'robust-point-in-polygon';
 import { FindNearestGeoPoint } from './components/utils/FindNearestGeoPoint';
 import { TokenValidator } from "./components/utils/TokenValidator";
 import { create_batch_api } from "./components/utils/CreateBatchAPI";
+import { ErrorMessage } from "./components/ErrorMessage";
 
 
 class App extends Component {
@@ -36,11 +37,12 @@ class App extends Component {
       current_date: '',
       loading_button: false,
       location_list_toggle: false,
+      error_message: false,
     };
   }
 
   fetch_traffic_and_weather_data = async () => {
-    this.setState({ loading_button: true });
+    this.setState({ loading_button: true, error_message: false });
 
     let tzoffset = (new Date()).getTimezoneOffset() * 60000;
     let localISOTime = (new Date(this.state.current_date - tzoffset)).toISOString().split('.')[0];
@@ -58,11 +60,18 @@ class App extends Component {
         }
       });
 
-      this.setState({
-        image_data: traffic_images_data.data['items'][0]['cameras'],
-        weather_data: weather_forecast_data.data,
-      }, () => this.classifying_points_to_regions());
-
+      if (_.isEmpty(traffic_images_data.data['items'][0])) {
+        this.setState({
+          loading_button: false,
+          error_message: true
+        });
+      }
+      else {
+        this.setState({
+          image_data: traffic_images_data.data['items'][0]['cameras'],
+          weather_data: weather_forecast_data.data,
+        }, () => this.classifying_points_to_regions());
+      }
     }
     catch (error) {
       if (error.response) {
@@ -183,7 +192,7 @@ class App extends Component {
 
             </Row>
 
-            {!_.isEmpty(this.state.location_data) ?
+            {!_.isEmpty(this.state.location_data) && !this.state.error_message ?
                 (<div className="controls">
                   <div className="control">
                     <RegionSelector rev_geocode={this.rev_geocode}/>
@@ -197,6 +206,10 @@ class App extends Component {
                     />
                   </div>
                 </div>) : null
+            }
+
+            {this.state.error_message ?
+                (<div className="center"><ErrorMessage /></div>) : null
             }
 
             <br/>
