@@ -1,11 +1,14 @@
 import axios from 'axios';
 import { API_ADDRESSES } from "../../constants/api_addresses";
 
+const email = process.env.REACT_APP_ONEMAP_EMAIL;
+const pwd = process.env.REACT_APP_ONEMAP_PWD;
+
 export async function TokenValidator() {
     let bodyFormData = new FormData();
 
-    bodyFormData.set('email', 'saimun92@icloud.com');
-    bodyFormData.set('password', 'password123');
+    bodyFormData.set('email', email);
+    bodyFormData.set('password', pwd);
 
     try {
         const { data } = await axios({
