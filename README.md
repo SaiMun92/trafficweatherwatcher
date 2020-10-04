@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 **A `react` Web App built to fetch Singapore's past traffic cam images and weather forecasts.**
 
-Demo
+Demo: https://saimun.me/trafficweatherwatcher/
 ![alt text](demo/home_page.png)
 
 ![alt text](demo/sample.png)
